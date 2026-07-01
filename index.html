@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A4 Cyber Forum</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* CSS đồng bộ hệ thống Popup và cấu trúc Layout */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .modal-box {
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 12px;
+            border: 2px solid #38bdf8;
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+            position: relative;
+        }
+        .modal-box h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #38bdf8;
+        }
+        .modal-box input[type="text"], .modal-box input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: white;
+            border-radius: 6px;
+            outline: none;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        .modal-box textarea {
+            width: 100%;
+            padding: 12px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: white;
+            border-radius: 6px;
+            outline: none;
+            resize: none;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+        }
+        .modal-gender-options {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 25px;
+            color: white;
+        }
+        .modal-gender-options label {
+            cursor: pointer;
+        }
+        .modal-btn {
+            background: #38bdf8;
+            color: #0f172a;
+            border: none;
+            padding: 12px 25px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.2s;
+        }
+        .modal-btn:hover { background: #0ea5e9; }
+
+        /* KHU VỰC THIẾT LẬP STORY ĐA PHƯƠNG TIỆN */
+        .story-media-tools {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .story-tools-btn {
+            background: #334155;
+            color: #e2e8f0;
+            border: 1px solid #475569;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: 0.2s;
+        }
+        .story-tools-btn:hover {
+            background: #475569;
+            border-color: #38bdf8;
+        }
+        .media-preview-box {
+            background: #0f172a;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+            display: none;
+            max-height: 150px;
+            overflow: hidden;
+            justify-content: center;
+            align-items: center;
+            border: 1px dashed #475569;
+        }
+
+        /* STORIES ROW BAR HOME */
+        .stories-wrapper {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #334155;
+        }
+        .stories-wrapper h3 {
+            margin-top: 0;
+            margin-bottom: 12px;
+            color: #e2e8f0;
+            font-size: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .stories-container {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+        .stories-container::-webkit-scrollbar { height: 5px; }
+        .stories-container::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .story-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            min-width: 70px;
+            text-align: center;
+        }
+        .story-avatar-ring {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            padding: 3px;
+            border: 3px solid #3b82f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #0f172a;
+            transition: transform 0.2s;
+        }
+        .story-item:hover .story-avatar-ring { transform: scale(1.05); }
+        .story-avatar-ring img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        .story-name {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 75px;
+        }
+
+        /* POPUP XEM STORY TỰ ĐỘNG CHẠY */
+        .story-view-box {
+            background: #0f172a;
+            max-width: 420px;
+            width: 95%;
+            height: 85vh;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .story-progress-bar {
+            position: absolute;
+            top: 12px;
+            left: 5%;
+            width: 90%;
+            height: 4px;
+            background: rgba(255,255,255,0.25);
+            border-radius: 2px;
+            z-index: 10;
+        }
+        .story-progress-fill { height: 100%; background: #ffffff; width: 0%; border-radius: 2px; }
+
+        /* KHU VỰC ĐIỀU KHIỂN CAMERA PHẦN CỨNG */
+        .story-camera-container {
+            width: 100%;
+            background: #000;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+            position: relative;
+        }
+        .story-camera-container video { width: 100%; border-radius: 8px; transform: scaleX(-1); display: block; }
+        .cam-rec-dot {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 12px;
+            height: 12px;
+            background: #ef4444;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+            display: none;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* CAMERA POPUP CHO KHUNG ĐĂNG BÀI VIẾT CHÍNH */
+        .camera-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #06b6d4;
+            box-shadow: 0 0 25px rgba(6, 182, 212, 0.3);
+            z-index: 10000;
+            display: none;
+            text-align: center;
+        }
+        .camera-popup video { width: 100%; max-width: 400px; border-radius: 8px; background: #000; transform: scaleX(-1); }
+        .camera-controls { margin-top: 15px; display: flex; justify-content: center; gap: 10px; }
+        .camera-controls button { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        
+        #posts { display: block !important; width: 100%; margin-top: 25px; }
+    </style>
+</head>
+
+<body>
+
+<div id="genderModal" class="modal-overlay">
+    <div class="modal-box">
+        <h3>👋 Chào mừng bạn!</h3>
+        <p style="color: #94a3b8; margin-bottom: 15px; font-size: 0.9rem;">Vui lòng nhập tên và chọn giới tính để tiếp tục</p>
+        <input type="text" id="modalName" placeholder="Nhập tên của bạn...">
+        <div class="modal-gender-options">
+            <label><input type="radio" name="popupGender" value="Nam" checked> 👦 Nam</label>
+            <label><input type="radio" name="popupGender" value="Nữ"> 👧 Nữ</label>
+            <label><input type="radio" name="popupGender" value="Khác"> 🦄 Khác</label>
+        </div>
+        <button class="modal-btn" onclick="saveGenderAndName()">Vào Diễn Đàn 🚀</button>
+    </div>
+</div>
+
+<div id="callSlotsModal" class="modal-overlay" style="display: none;">
+    <div class="modal-box" style="border-color: #22c55e; box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);">
+        <h3>📞 Cấu hình cuộc gọi</h3>
+        <p style="color: #94a3b8; margin-bottom: 15px; font-size: 0.9rem;">Nhập số lượng thành viên tối thiểu cần tham gia</p>
+        <input type="number" id="modalCallSlots" value="3" min="2">
+        <div style="display: flex; gap: 10px;">
+            <button class="modal-btn" style="background: #ef4444; color: white;" onclick="closeCallSlotsModal()">Hủy</button>
+            <button class="modal-btn" style="background: #22c55e; color: white;" onclick="confirmAndStartCall()">Bắt đầu 🟢</button>
+        </div>
+    </div>
+</div>
+
+<div id="storyCreateModal" class="modal-overlay" style="display: none;">
+    <div class="modal-box" style="border-color: #a855f7; box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);">
+        <button onclick="closeStoryCreateModal()" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: #64748b; font-size: 1.5rem; cursor: pointer;">&times;</button>
+        <h3>📖 Tạo Nhật Ký Mới</h3>
+        <textarea id="storyText" rows="3" placeholder="Hôm nay nhật ký của bạn có điều gì thú vị thế..."></textarea>
+        
+        <div class="story-camera-container" id="storyCamContainer">
+            <video id="storyVideoLive" autoplay playsinline muted></video>
+            <div class="cam-rec-dot" id="storyCamRecDot"></div>
+        </div>
+        <div class="media-preview-box" id="storyMediaPreview"></div>
+
+        <div class="story-media-tools">
+            <button class="story-tools-btn" onclick="triggerStoryImage()">🖼️ Ảnh thư viện</button>
+            <button class="story-tools-btn" onclick="triggerStoryVideo()">🎬 Video thư viện</button>
+            <button class="story-tools-btn" id="btnCamSnap" onclick="actionStoryCapture()">📸 Chụp ảnh liền</button>
+            <button class="story-tools-btn" id="btnCamRec" onclick="actionStoryRecord()">📹 Quay video</button>
+        </div>
+        <button class="story-tools-btn" style="width:100%; margin-bottom: 20px;" onclick="addMusicToStory()">
+            <span id="storyMusicStatus">🎵 Chèn bài hát hoặc Link Spotify</span>
+        </button>
+
+        <input type="file" id="storyFileImageInput" accept="image/*" style="display:none;" onchange="handleStoryFileSelect(this, 'image')">
+        <input type="file" id="storyFileVideoInput" accept="video/*" style="display:none;" onchange="handleStoryFileSelect(this, 'video')">
+        <button class="modal-btn" style="background: #a855f7; color: white;" onclick="submitNewStoryCloud()">Đăng Nhật Ký ✨</button>
+    </div>
+</div>
+
+<div id="storyViewModal" class="modal-overlay" style="display: none;">
+    <div class="story-view-box">
+        <div class="story-progress-bar"><div id="storyProgress" class="story-progress-fill"></div></div>
+        <div style="display: flex; align-items: center; gap: 10px; padding: 25px 15px 15px; background: linear-gradient(to bottom, rgba(0,0,0,0.8), rgba(0,0,0,0)); position: absolute; top: 0; width: 100%; box-sizing: border-box; z-index: 5;">
+            <img id="storyViewAvatar" src="" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #fff;">
+            <div>
+                <h4 id="storyViewName" style="margin: 0; color: white; font-size: 0.95rem;">Tên thành viên</h4>
+                <small id="storyViewTime" style="color: #cbd5e1; font-size: 0.75rem;">Vừa xong</small>
+            </div>
+            <div style="margin-left: auto; display: flex; align-items: center; gap: 12px;">
+                <button id="btnDeleteStory" style="background: none; border: none; color: #f43f5e; font-size: 1.2rem; cursor: pointer; display: none;" title="Xóa nhật ký này">🗑️</button>
+                <button onclick="closeStoryModal()" style="background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; line-height: 1;">&times;</button>
+            </div>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #020617; padding: 10px; position: relative;">
+            <img id="storyViewImg" src="" style="max-width: 100%; max-height: 70%; object-fit: contain; display: none;">
+            <video id="storyViewVid" style="max-width: 100%; max-height: 70%; object-fit: contain; display: none;" controls autoplay></video>
+            
+            <div id="storyViewSpotifyContainer" style="width: 90%; max-height: 80px; margin-top: 10px; display: none; z-index: 6;"></div>
+            <div id="storyViewMusicWidget" style="position: absolute; bottom: 20px; left: 15px; background: rgba(56, 189, 248, 0.2); border: 1px solid #38bdf8; padding: 6px 12px; border-radius: 20px; color: white; font-size: 0.8rem; display: none; align-items: center; gap: 6px; z-index: 6;">
+                🎵 <span id="storyViewMusicText">Tên bài hát</span>
+            </div>
+            
+            <p id="storyViewText" style="color: white; font-size: 1.2rem; text-align: center; width: 85%; word-break: break-word; position: absolute; font-weight: 500; text-shadow: 0 2px 4px rgba(0,0,0,0.8); z-index: 4;"></p>
+        </div>
+    </div>
+</div>
+
+<div id="cameraModal" class="camera-popup">
+    <h3 style="color: #06b6d4; margin-top: 0; margin-bottom: 10px;">📸 Máy ảnh trực tuyến</h3>
+    <video id="webcamVideo" autoplay playsinline></video>
+    <div class="camera-controls">
+        <button style="background: #06b6d4; color: white;" onclick="captureSnapshot()">⚡ Chụp ảnh</button>
+        <button style="background: #f43f5e; color: white;" onclick="stopWebcam()">❌ Đóng</button>
+    </div>
+</div>
+
+<header class="header">
+    <div class="logo">💿 A4 CYBER FORUM</div>
+    <nav class="navbar">
+        <a href="#">🏠 Trang chủ</a>
+        <a href="#">🔥 Bài viết</a>
+        <a href="#">👥 Thành viên</a>
+        <a href="#">📷 Album</a>
+        <a href="#">📅 Sự kiện</a>
+    </nav>
+</header>
+
+<div class="layout">
+    <aside class="left-sidebar">
+        <div class="profile-card">
+            <img id="userAvatar" src="assets/avatar-default.png" class="avatar" alt="Avatar">
+            <h2 id="sidebarUser">Thành viên ẩn danh</h2>
+            <p>💙 Chào mừng đến với diễn đàn lớp A4</p>
+        </div>
+        <div class="menu-card">
+            <h3>📌 Menu</h3>
+            <ul>
+                <li>🏠 Trang chủ</li>
+                <li>⭐ Bài nổi bật</li>
+                <li>❤️ Đã thích</li>
+                <li>💬 Tin nhắn</li>
+                <li>📁 Tài liệu</li>
+                <li>⚙️ Cài đặt</li>
+            </ul>
+        </div>
+        <div class="call-card" style="background: #1e293b; padding: 20px; border-radius: 12px; margin-top: 20px; border: 1px solid #334155; text-align: center;">
+            <h3 style="color: #38bdf8; margin-top: 0; margin-bottom: 12px;">📞 Phòng Thoại Lớp A4</h3>
+            <button id="btnGroupCall" style="background: #22c55e; color: white; border: none; padding: 12px 20px; font-weight: 600; border-radius: 8px; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <span>🟢</span> Bắt đầu gọi nhóm
+            </button>
+            <p id="callStatusText" style="color: #94a3b8; font-size: 0.85rem; margin-top: 10px; margin-bottom: 0; display: none;"></p>
+        </div>
+    </aside>
+
+    <main class="content">
+        <section class="banner">
+            <h1>✨ Welcome to A4 Cyber Forum ✨</h1>
+            <p>Chia sẻ bài viết, hình ảnh và kỷ niệm cùng cả lớp.</p>
+        </section>
+
+        <div class="stories-wrapper">
+            <h3>
+                <span>📖 Nhật ký 24h</span>
+                <button onclick="openStoryCreateModal()" style="background:#3b82f6; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:500;">+ Tạo tin mới</button>
+            </h3>
+            <div class="stories-container" id="storiesContainer"></div>
+        </div>
+
+        <section class="create-post">
+            <h2>📝 Tạo bài viết mới</h2>
+            <input type="text" id="name" placeholder="Tên hiển thị..." readonly style="background: #f1f5f9; color: #64748b; cursor: not-allowed; margin-bottom:10px; width:100%; padding:10px; border-radius:6px; border:1px solid #ddd; box-sizing:border-box;">
+            <textarea id="text" rows="4" placeholder="Bạn đang nghĩ gì hôm nay?"></textarea>
+            
+            <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="handleImageSelect(this)">
+            <input type="file" id="cameraInput" accept="image/*" capture="user" style="display: none;" onchange="handleImageSelect(this)">
+            
+            <div class="post-tools">
+                <button onclick="triggerUpload()">📷 Ảnh</button>
+                <button onclick="openCamera()">📸 Chụp ảnh</button>
+                <button onclick="insertEmoji()">😀 Emoji</button>
+                <button onclick="insertLocation()">📍 Vị trí</button>
+                <button onclick="insertMusic()">🎵 Nhạc/Spotify</button>
+            </div>
+            <button class="post-btn" style="margin-top:15px; width:100%; padding:12px; font-weight:600; border:none; background:#38bdf8; color:#0f172a; border-radius:6px; cursor:pointer;">🚀 Đăng bài</button>
+        </section>
+
+        <div id="posts"></div>
+    </main>
+</div>
+
+<script type="module" src="script.js"></script>
+</body>
+</html>
